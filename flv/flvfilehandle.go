@@ -84,7 +84,6 @@ func (self *FlvFileHandle) FlvSeek(offset int64, whence int)  error {
 	return nil
 }
 
-
 func (self *FlvFileHandle) FlvFileStat(fs *FlvFileSpec) error {
 	fi ,err := self.file.Stat() 
 	
@@ -126,7 +125,7 @@ func (self *FlvFileHandle) FlvReadBodyPreviousTagSize(fb *FlvFileBody) error {
 	}
 	fb.PreviousTagSize = util.Byte42Uint32(buf, 0)
 	
-	log.Println(fb.PreviousTagSize)
+	//log.Println(fb.PreviousTagSize)
 	
 	return nil
 }
@@ -138,7 +137,7 @@ func (self *FlvFileHandle) FlvReadBodyTag(fb *FlvFileBody) error {
 		log.Fatalln(err.Error())
 		return err
 	}
-	log.Println(buf)
+	//log.Println(buf)
 	fb.Tag.TagType = uint8(buf[0])
 	fb.Tag.DataSize = util.Byte32Uint32(buf[1:4], 0)
 	fb.Tag.Timestamp = util.Byte32Uint32(buf[4:7], 0)
@@ -165,22 +164,32 @@ func (self *FlvFileHandle) FlvReadBody(fs *FlvFileSpec) error {
 	
 	pos = 9
 	
+	
+	
 	for fs.TotalSize > pos { 
-		log.Printf("pos = %d\n", pos)
-		err = self.FlvReadBodyPreviousTagSize(&(fs.Body[num]))
+		fb := new(FlvFileBody)
+		err = self.FlvReadBodyPreviousTagSize(fb)
 		if err != nil {
 			log.Fatalln(err.Error())
 			return err
 		}
 		
-		err = self.FlvReadBodyTag(&(fs.Body[num]))
+		if pos == (fs.TotalSize - 4) {
+			fs.Bodys = append(fs.Bodys, fb)
+			return nil
+		}
+		
+		err = self.FlvReadBodyTag(fb)
 		if err != nil {
 			log.Fatalln(err.Error())
 			return err
 		}
 		
-		pos += (int64)(fs.Body[num].Tag.DataSize) 
+		pos += (int64)(fb.Tag.DataSize) 
 		pos += 15
+		
+		fs.Bodys = append(fs.Bodys, fb)
+		
 		err = self.FlvNextBody(pos)
 		if err != nil {
 			log.Fatalln(err.Error())

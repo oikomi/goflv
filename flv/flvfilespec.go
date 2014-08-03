@@ -44,7 +44,7 @@ type FlvFileSpec struct {
 	FlvName string
 	TotalSize int64
 	Header FlvFileHeader
-	Body []FlvFileBody
+	Bodys []*FlvFileBody
 }
 
 func NewFlvFileSpec (name string) *FlvFileSpec {
@@ -52,7 +52,7 @@ func NewFlvFileSpec (name string) *FlvFileSpec {
 		FlvName : name,
 		TotalSize : 0,
 		
-		Body : make([]FlvFileBody, 10000),
+		Bodys : make([]*FlvFileBody, 0),
 	}
 	
 	return fs

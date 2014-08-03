@@ -90,8 +90,7 @@ func main() {
 		return
 	}
 	
-	//res, _ := json.Marshal(fs)
-	json.Marshal(fs)
-	//log.Println(string(res))
-
+	res, _ := json.Marshal(fs)
+	//json.Marshal(fs)
+	fmt.Println(string(res))
 }
